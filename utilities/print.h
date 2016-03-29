@@ -19,14 +19,14 @@ private:
 		return os;
 	}
 
-	template <class A0, class ...Args>
+	template <typename A0, typename ...Args>
 	std::ostream&  print_one (std::ostream& os, const A0& a0, const Args& ...args)
 	{
 		os << a0;
 		return print_one(os, args...);
 	}
 
-	template <class ...Args>
+	template <typename ...Args>
 	std::ostream&  print (std::ostream& os, const Args& ...args)
 	{
 		return print_one(os, args...);
@@ -37,7 +37,7 @@ public:
 
 	static std::mutex m;     // needs to be initialized in cpp file to avoid linker error LNK2005
 
-	template <class ...Args>
+	template <typename ...Args>
 	std::ostream&  operator() (const Args& ...args)
 	{
 		std::lock_guard<std::mutex> lk(m);
@@ -45,7 +45,7 @@ public:
 	}
 
 
-	template <class ...Args>
+	template <typename ...Args>
 	std::ostream&  operator() (std::ostream& os, const Args& ...args)
 	{
 		std::lock_guard<std::mutex> lk(m);
