@@ -1,4 +1,4 @@
-#pragma once
+
 #include "waitperson.h"
 #include "restourant.h"
 
