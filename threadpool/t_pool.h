@@ -17,7 +17,7 @@ class thread_pool
 	std::vector<std::thread> threads;
 	threadsafe_queue<function_wrapper> work_queue;
 	join_threads joiner;
-	unsigned MIN_THREAD_NUMBER = 3; // I arbitrarily chosed 3 to fit one of examples
+	unsigned MIN_THREAD_NUMBER = 3; // 3 arbitrarily chosen  to fit one of examples
 
     void worker_thread()
 	{
@@ -62,7 +62,7 @@ public:
 	/*
 		Generalized submit function
 	*/
-
+	//isprobati 1 varijantu sa const argumentima  //???
 		template<
 			 typename F, typename... Args,
 			 typename = typename std::enable_if<!std::is_member_function_pointer<F>::value>::type
@@ -126,7 +126,50 @@ public:
 			return res;
 		}
 
+		/*
+			template functions ,not completed
+		*/
 
+		template<typename Tr, typename... T>
+		using f_ptr_rv1 = Tr(*)(T&&...);
+
+		template<typename Tr, typename... T>
+		using f_ptr_rv2 = Tr(*)(const T&...);
+
+		template<typename Tr, typename... T>
+		using f_ptr_rv3 = Tr(*)(T*...);
+
+
+
+		template<typename Tr, typename... T>
+		auto submit(f_ptr_rv1<Tr, T...> f, T&&... arg) {
+
+			//std::cout << "submit 6 " << std::endl;
+			std::packaged_task<Tr()> task(std::bind(std::move(f), std::forward<T>(arg)...));
+			std::future<Tr> res(task.get_future());
+			work_queue.push(function_wrapper(std::move(task)));
+			return res;
+		}
+
+		template<typename Tr, typename... T>
+		auto submit(f_ptr_rv2<Tr, T...> f, const T&... arg) {
+
+			//std::cout << "submit 7 " << std::endl;
+			std::packaged_task<Tr()> task(std::bind(std::move(f), arg...));
+			std::future<Tr> res(task.get_future());
+			work_queue.push(function_wrapper(std::move(task)));
+			return res;
+		}
+
+		template<typename Tr, typename... T>
+		auto submit(f_ptr_rv3<Tr, T...> f,  T*... arg) {
+
+			//std::cout << "submit 8 " << std::endl;
+			std::packaged_task<Tr()> task(std::bind(std::move(f), arg...));
+			std::future<Tr> res(task.get_future());
+			work_queue.push(function_wrapper(std::move(task)));
+			return res;
+		}
 
 		size_t threads_size()
 		{

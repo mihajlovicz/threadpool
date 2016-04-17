@@ -8,6 +8,7 @@
 #include "restourant.h"
 #include "exception_thread.h"
 #include "print.h"
+#include "int_str.h"
 
 
 
@@ -21,6 +22,8 @@ int main(){
 	Print print;
 	A a1(33);	
 	std::vector<int> v1 = {1,22,3,2,73,15,88,243,1,5,9,44,62,78,112,41,92,37,96,97,46,32,111};
+	MyInt myint(5);
+	MyString mystr("4");
 
 
 
@@ -58,7 +61,7 @@ int main(){
 	  If 3 threads are not available, which is the case in this example, these functions use std::this_thread::yield 
 	  to wait until some of occupated threads is released. 
 	  In this case threads wait until std::future f_ex calls get() function.
-	  If the pool had more threads available Restourant r would finished before f_ex.
+	  If the pool had more threads available Restourant r would have finished before f_ex.
 	*/
 
 	pool.submit(&Restourant::start, std::ref(r)).get();
@@ -90,6 +93,24 @@ int main(){
 			std::cout << "Thread finished with an error " ;
 		}
 	}
+
+	/*
+	  template functions
+	*/
+
+	// template parameter in submit call defines return type of the passed function ,in this case DoAdd's return type
+	// depends on the order of input arguments
+
+	auto c1 = pool.submit<MyInt>(DoAdd, myint, mystr).get();  //uses 7th submit overload
+	auto c2 = pool.submit<MyString>(DoAdd, mystr, myint).get();
+
+	Base* c_ptr;
+
+	c_ptr= &c1;
+	pool.submit<void>(print_base,c_ptr).get(); //uses 8th submit overload
+
+    c_ptr = &c2;
+	pool.submit<void>(print_base, c_ptr).get();
 
 	std::getchar();
 }
